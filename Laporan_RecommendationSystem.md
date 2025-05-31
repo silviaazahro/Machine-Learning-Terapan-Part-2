@@ -280,57 +280,66 @@ Meskipun NeuMF menghasilkan rekomendasi yang lebih beragam dan “unik” dalam 
 
 ## Evaluation
 ---
-Tujuan dari sistem rekomendasi ini adalah untuk memprediksi **rating** yang akan diberikan pengguna terhadap sebuah item (film) secara akurat. Oleh karena itu, model dievaluasi menggunakan metrik regresi yang mengukur seberapa dekat nilai prediksi dengan nilai aktual. Metrik Evaluasi yang Digunakan :
 
-#### 1. Root Mean Squared Error (RMSE)
-**RMSE** mengukur akar dari selisih kuadrat rata-rata antara nilai aktual ($y_i$) dan nilai prediksi ($\hat{y}_i$). Semakin kecil nilai **RMSE**, maka prediksi semakin mendekati nilai sebenarnya. **RMSE** bersifat sensitif terhadap outlier karena adanya pemangkatan kuadrat.. Dalam sistem rekomendasi berbasis rating seperti MovieLens, **RMSE** sering digunakan sebagai metrik utama karena penalti terhadap prediksi yang meleset jauh sangat penting.
+Tujuan utama dari sistem rekomendasi ini adalah untuk memprediksi **rating** yang kemungkinan besar akan diberikan oleh pengguna terhadap sebuah buku dengan tingkat akurasi yang tinggi. Untuk menilai seberapa baik performa model dalam melakukan prediksi tersebut, digunakan beberapa metrik regresi yang mampu mengukur kedekatan antara hasil prediksi dan nilai sebenarnya. Berikut adalah metrik evaluasi yang digunakan:
+
+### 1. Root Mean Squared Error (RMSE)
+**RMSE** menghitung akar dari rata-rata kuadrat selisih antara rating sebenarnya ($y_i$) dan hasil prediksi ($\hat{y}_i$). Nilai **RMSE** yang rendah menunjukkan bahwa model mampu memberikan prediksi yang dekat dengan nilai aktual. Karena menggunakan kuadrat dalam perhitungannya, metrik ini cukup sensitif terhadap nilai ekstrem (outlier). Dalam konteks rekomendasi berbasis rating seperti pada dataset buku, **RMSE** sering dijadikan acuan utama karena penalti terhadap kesalahan besar sangat diperhatikan.
 
 **Rumus**:
   $$
   RMSE = \sqrt{ \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 }
   $$
-  
 
-#### 2. Mean Absolute Error (MAE)
-**MAE** menghitung rata-rata dari selisih absolut antara nilai aktual dan prediksi. **MAE** tidak terlalu sensitif terhadap outlier, sehingga lebih “stabil” dibanding RMSE. **MAE** berguna untuk memahami rata-rata kesalahan prediksi tanpa pengaruh besar dari error ekstrem.
+### 2. Mean Absolute Error (MAE)
+**MAE** mengukur rata-rata dari perbedaan absolut antara nilai aktual dan prediksi. Berbeda dengan RMSE, **MAE** tidak terlalu terpengaruh oleh outlier, sehingga memberikan gambaran rata-rata kesalahan yang lebih stabil dan moderat. Metrik ini bermanfaat untuk melihat sejauh mana model cenderung “melenceng” dari nilai sebenarnya secara umum.
 
 **Rumus**:
   $$
   MAE = \frac{1}{n} \sum_{i=1}^{n} \left| y_i - \hat{y}_i \right|
   $$
 
-#### 3. R-squared (R² Score)
-**R²** mengukur seberapa besar proporsi variansi dari data aktual yang dapat dijelaskan oleh model. Nilainya berkisar antara:
-  - **1.0** → prediksi sempurna  
-  - **0.0** → model tidak lebih baik dari rata-rata  
-  - **< 0** → model lebih buruk dari tebakan acak
-Meskipun tidak umum digunakan sendiri untuk sistem rekomendasi, R² digunakan untuk melengkapi evaluasi secara statistik.
+### 3. R-squared (R² Score)
+**R²** atau koefisien determinasi menunjukkan seberapa besar variabilitas dari data aktual yang dapat dijelaskan oleh model. Nilainya berkisar:
+- **1.0** → prediksi sangat akurat (sempurna)
+- **0.0** → model tidak lebih baik dari sekadar rata-rata
+- **Kurang dari 0** → performa model lebih buruk daripada tebakan acak
+
+Walaupun **R²** bukan metrik utama dalam sistem rekomendasi, penggunaannya bisa membantu memberikan perspektif tambahan terhadap seberapa baik model menjelaskan variasi data.
 
 **Rumus**:
   $$
   R^2 = 1 - \frac{ \sum (y_i - \hat{y}_i)^2 }{ \sum (y_i - \bar{y})^2 }
   $$
 
-### Hasil Evaluasi Metrik
+## 📊 Hasil Evaluasi Metrik
 
 | Metrik  | RecommenderNet | NeuMF    |
 |---------|----------------|----------|
-| RMSE    | 0.8529     | 0.8685   |
-| MAE     | 0.6592     | 0.6660   |
-| R²      | 0.3333     | 0.3088   |
+| RMSE    | 0.4445         | 0.3505   |
+| MAE     | 0.3133         | 0.2454   |
+| R²      | -0.7092        | -0.0624  |
 
-Berdasarkan hasil evaluasi diatas, bisa disimpulkan bahwa:
-- Model **RecommenderNet** menunjukkan performa **lebih unggul** dibandingkan NeuMF pada semua metrik.
-- **RMSE dan MAE yang lebih rendah** mengindikasikan bahwa prediksi model lebih mendekati nilai aktual dan lebih stabil.
-- **R² yang tinggi** menunjukkan bahwa model mampu menjelaskan sebagian besar variasi dalam data.
+**Analisis:**
+- Model **NeuMF** menunjukkan performa **lebih unggul** dibandingkan RecommenderNet berdasarkan ketiga metrik evaluasi.
+- Nilai **RMSE** (Root Mean Squared Error) dan **MAE** (Mean Absolute Error) yang lebih rendah pada NeuMF menunjukkan bahwa model ini mampu memprediksi rating dengan tingkat kesalahan yang lebih kecil.
+- Walaupun nilai **R²** pada kedua model negatif (menunjukkan bahwa model belum menjelaskan variasi data dengan baik), nilai **R² pada NeuMF lebih tinggi**, menandakan performa yang relatif lebih stabil.
 
-Berdasarkan hasil evaluasi menggunakan metrik RMSE, MAE, dan R², dapat disimpulkan bahwa model **RecommenderNet** mampu memberikan prediksi rating yang lebih akurat dibandingkan **NeuMF**, meskipun NeuMF menggunakan arsitektur yang lebih kompleks. Hal ini terlihat dari nilai RMSE dan MAE yang lebih rendah, serta nilai R² yang lebih tinggi pada RecommenderNet. Karena tujuan proyek adalah memberikan rekomendasi film yang tepat, penurunan RMSE dan MAE merupakan indikasi bahwa prediksi rating mendekati nilai aktual, sehingga rekomendasi yang dihasilkan juga relevan dan akurat. Dengan demikian, RecommenderNet lebih direkomendasikan untuk digunakan dalam sistem rekomendasi berbasis collaborative filtering pada studi ini. 
+Secara keseluruhan, model **NeuMF** lebih direkomendasikan dalam konteks prediksi rating buku pada dataset ini karena menghasilkan prediksi yang lebih akurat.
 
-## Conclusion and Future Work
+## ✅ Kesimpulan dan Rencana Pengembangan ke Depan
 ---
-Dalam proyek ini, dua pendekatan collaborative filtering berhasil dibangun dan diuji menggunakan dataset MovieLens 100K. Hasil menunjukkan bahwa model RecommenderNet mampu memberikan hasil prediksi rating yang sedikit lebih baik dibandingkan NeuMF, meskipun NeuMF memiliki fleksibilitas yang lebih tinggi. Evaluasi menggunakan RMSE, MAE, dan R² Score memberikan gambaran bahwa model sudah cukup baik dalam merepresentasikan preferensi pengguna. 
 
-Untuk pengembangan selanjutnya, model dapat diperluas dengan:
-1. Menambahkan metrik evaluasi berbasis ranking (Hit@K, NDCG).
-2. Menggabungkan pendekatan content-based untuk menangani cold start.
-3. Melatih model pada data yang lebih besar dan kompleks seperti MovieLens 1M atau Netflix Prize dataset.
+Dalam proyek ini, dua pendekatan collaborative filtering — **RecommenderNet** dan **NeuMF** — telah dibangun dan diuji menggunakan **dataset buku dari Kaggle**. Hasil evaluasi menunjukkan bahwa **NeuMF** memberikan prediksi rating yang lebih baik dibandingkan RecommenderNet, dilihat dari nilai **RMSE dan MAE yang lebih rendah**, serta **R² yang lebih stabil**.
+
+🔍 **Temuan Utama:**
+- NeuMF dapat menangkap interaksi kompleks antara pengguna dan item dengan lebih baik berkat kombinasi matrix factorization dan neural network.
+- RecommenderNet masih memiliki potensi, namun perlu perbaikan untuk menangani variasi data yang tinggi.
+
+🚀 **Rencana Pengembangan Selanjutnya:**
+1. Menambahkan metrik evaluasi berbasis ranking seperti **Hit@K**, **Precision@K**, atau **NDCG** untuk mengukur relevansi top-N rekomendasi.
+2. Mengintegrasikan metode **content-based filtering** untuk menangani masalah cold start (pengguna/item baru).
+3. Melatih model pada dataset yang lebih besar atau menggunakan fitur tambahan seperti genre, penulis, atau sinopsis buku untuk meningkatkan akurasi.
+4. Menerapkan regularisasi atau teknik tuning hiperparameter agar model lebih general dan tidak overfitting.
+
+Dengan pengembangan lebih lanjut, sistem rekomendasi ini diharapkan mampu memberikan rekomendasi buku yang lebih personal, akurat, dan bermanfaat bagi pengguna.
