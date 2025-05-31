@@ -103,172 +103,180 @@ Dataset ini memiliki beberapa nilai yang hilang (*missing values*) pada kolom-ko
 
 Karena tidak tersedia informasi `userId` eksplisit, pendekatan simulatif digunakan untuk membangun sistem rekomendasi, di mana `published_year` diasumsikan mewakili sekelompok pembaca dari generasi yang sama, dan digunakan sebagai pengganti `userId` dalam konteks model rekomendasi berbasis collaborative filtering.
 
-### Visualisasi Distribusi Data Rating
-Grafik menunjukkan jumlah frekuensi untuk setiap nilai rating mulai dari 0.5 hingga 5.0. Terlihat bahwa rating 4 memiliki jumlah paling tinggi, diikuti oleh rating 3 dan 5, yang menandakan bahwa sebagian besar pengguna memberikan ulasan positif terhadap aplikasi yang mereka nilai.
+### 📊 Visualisasi Distribusi Data Rating
 
-![Distribusi](./assets/DR.png)
+Grafik batang di bawah ini menunjukkan frekuensi masing-masing nilai rating buku dari skala 0 hingga 5. Terlihat bahwa rating **4.0** merupakan yang paling sering muncul, diikuti oleh rating **3.0** dan **5.0**. Hal ini mengindikasikan bahwa sebagian besar pembaca memberikan penilaian yang cukup positif terhadap buku-buku yang mereka baca.
 
+![Distribusi Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/Distribusi%20Rating.png)
 
-### Visualisasi Histogram Data Rating
-Histogram menampilkan penyebaran rating dalam bentuk batang dengan warna biru muda. Pola distribusinya serupa dengan barplot, di mana rating 4 mendominasi, menunjukkan bahwa data memiliki kecenderungan ke arah nilai tinggi, meskipun rating rendah juga masih cukup muncul.
+---
 
-![Histogram](./assets/HR.png)
+### 🧱 Visualisasi Histogram Data Rating
 
-### Visualisasi Boxplot Data Rating
-Boxplot menggambarkan ringkasan statistik dari rating, seperti nilai minimum, maksimum, median, dan outlier. Median berada di antara rating 3 dan 4, yang menunjukkan kecenderungan rating tinggi, sementara titik-titik di sisi kiri (rating rendah) menunjukkan adanya ulasan negatif yang dianggap sebagai outlier.
+Histogram di bawah ini menggambarkan penyebaran nilai rating dalam bentuk batang berwarna biru muda. Pola distribusinya mirip dengan grafik distribusi sebelumnya, di mana rating tinggi (khususnya 4.0) mendominasi. Ini menunjukkan bahwa persepsi pembaca terhadap buku dalam dataset ini cenderung positif.
 
-![Boxplot](./assets/BR.png)
+![Histogram Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/Histogram%20Rating.png)
+
+---
+
+### 📦 Visualisasi Boxplot Data Rating
+
+Boxplot berikut menampilkan ringkasan statistik nilai rating buku, termasuk nilai minimum, maksimum, kuartil, dan median. Median rating berada di sekitar **3.8**, menunjukkan bahwa mayoritas rating berkisar pada nilai tinggi. Beberapa outlier dengan rating rendah juga terlihat, mencerminkan adanya buku yang dianggap kurang memuaskan oleh sebagian pembaca.
+
+![Boxplot Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/Boxplot%20Rating.png)
 
 ## Data Preparation 
 ---
-Beberapa langkah data preparation yang dilakukan antara lain:
+Beberapa tahapan dalam persiapan data yang dilakukan meliputi:
 
-1. **Encoding**: Mengubah userId dan movieId menjadi indeks integer agar dapat digunakan pada layer embedding. Layer embedding memerlukan input dalam bentuk indeks numerik yang dapat dipetakan ke vektor representasi laten.
-2. **Normalisasi**: Rating dinormalisasi ke dalam skala 0-1 karena model menggunakan fungsi aktivasi sigmoid pada output layer. Ini penting agar output model berada dalam rentang yang sesuai dengan target.
-3. **Split Dataset**: Data dibagi menjadi training set dan validation set untuk mengevaluasi performa model secara objektif dan mencegah overfitting.
+1. **Encoding**: Mengonversi variabel *published_year* dan *num_pages* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.  
+2. **Normalisasi**: Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.  
+3. **Pembagian Dataset**: Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
 
-Langkah ini dilakukan untuk memastikan data dapat digunakan secara optimal dalam model berbasis deep learning.
+Tahapan ini dilakukan agar data siap digunakan secara efektif dalam model deep learning.
 
 ## Modeling
 ---
 
-Dalam proyek ini dikembangkan dua pendekatan model rekomendasi berbasis collaborative filtering. Dua pendekatan model digunakan untuk membandingkan performa model klasik berbasis matrix factorization dengan model deep learning berbasis neural network, guna mengeksplorasi performa dan fleksibilitas masing-masing dalam konteks rekomendasi film.
+Dalam proyek ini, dikembangkan dua jenis model rekomendasi berbasis collaborative filtering. Kedua pendekatan tersebut digunakan untuk membandingkan kinerja model klasik yang memakai matrix factorization dengan model deep learning yang menggunakan neural network, dengan tujuan mengevaluasi performa serta fleksibilitas masing-masing dalam konteks rekomendasi buku.
 
 ### 1. **Matrix Factorization dengan Embedding (Baseline)**
 
-Model ini menggunakan pendekatan klasik collaborative filtering yang diimplementasikan menggunakan layer embedding dalam TensorFlow.
+Model ini menerapkan pendekatan collaborative filtering klasik yang diimplementasikan dengan menggunakan layer embedding pada TensorFlow.
 
 **Arsitektur:**
-- Dua buah embedding layer: satu untuk user dan satu untuk movie.
-- Operasi **dot product** antar embedding untuk mendapatkan skor kecocokan.
-- Tambahan bias dan aktivasi sigmoid agar output berada dalam rentang 0–1.
+- Terdapat dua embedding layer, masing-masing untuk *year* dan *pages*.  
+- Skor kecocokan dihitung melalui operasi **dot product** antar embedding tersebut.  
+- Ditambahkan bias dan fungsi aktivasi sigmoid agar output berada pada rentang 0 hingga 1.
 
      ```python
-    class RecommenderNet(tf.keras.Model):
-        def __init__(self, num_users, num_movies, embedding_size, **kwargs):
-            super(RecommenderNet, self).__init__(**kwargs)
-            self.num_users = num_users
-            self.num_movies = num_movies
-            self.embedding_size = embedding_size
-        
-        # Embedding untuk user
-        self.user_embedding = layers.Embedding(
-            num_users,
+     class RecommenderNet(tf.keras.Model):
+    def __init__(self, num_year, num_pages, embedding_size, **kwargs):
+        super(RecommenderNet, self).__init__(**kwargs)
+        self.num_year = num_year
+        self.num_pages = num_pages
+        self.embedding_size = embedding_size
+
+        # Embedding untuk year
+        self.year_embedding = layers.Embedding(
+            num_year,
             embedding_size,
             embeddings_initializer='he_normal',
             embeddings_regularizer=keras.regularizers.l2(1e-6)
         )
-        self.user_bias = layers.Embedding(num_users, 1)
-        
-        # Embedding untuk movie
-        self.movie_embedding = layers.Embedding(
-            num_movies,
+        self.year_bias = layers.Embedding(num_year, 1)
+
+        # Embedding untuk pages
+        self.pages_embedding = layers.Embedding(
+            num_pages,
             embedding_size,
             embeddings_initializer='he_normal',
             embeddings_regularizer=keras.regularizers.l2(1e-6)
         )
-        self.movie_bias = layers.Embedding(num_movies, 1)
+        self.pages_bias = layers.Embedding(num_pages, 1)
 
     def call(self, inputs):
-        user_vector = self.user_embedding(inputs[:, 0])
-        user_bias = self.user_bias(inputs[:, 0])
-        movie_vector = self.movie_embedding(inputs[:, 1])
-        movie_bias = self.movie_bias(inputs[:, 1])
-        
+        year_vector = self.year_embedding(inputs[:, 0])
+        year_bias = self.year_bias(inputs[:, 0])
+        pages_vector = self.pages_embedding(inputs[:, 1])
+        pages_bias = self.pages_bias(inputs[:, 1])
+
         # Dot product antara user dan movie embedding
-        dot_user_movie = tf.reduce_sum(user_vector * movie_vector, axis=1, keepdims=True)
-        
+        dot_year_pages = tf.reduce_sum(year_vector * pages_vector, axis=1, keepdims=True)
+
         # Menambahkan bias
-        x = dot_user_movie + user_bias + movie_bias
-        
+        x = dot_year_pages + year_bias + pages_bias
+
         # Aktivasi sigmoid untuk output antara 0 dan 1
         return tf.nn.sigmoid(x)
      ```
 
-**Kelebihan:**
-- Sederhana dan efisien.
-- Cepat dalam proses training.
-- Cocok sebagai baseline atau model awal.
+**Keunggulan:**  
+- Struktur model yang sederhana dan efisien.  
+- Proses pelatihan berlangsung dengan cepat.  
+- Ideal digunakan sebagai baseline atau model awal.
 
-**Kekurangan:**
-- Hubungan user–item yang dihasilkan hanya linear.
-- Tidak cukup fleksibel untuk menangkap pola kompleks atau non-linear dalam preferensi pengguna.
+**Keterbatasan:**  
+- Hubungan antara *year* dan *pages* hanya bersifat linear.  
+- Kurang mampu menangkap pola kompleks atau non-linear dalam preferensi pengguna.
 
 ### 2. **Neural Matrix Factorization (NeuMF)**
 
-NeuMF merupakan pendekatan yang menggabungkan dua jalur: Generalized Matrix Factorization (GMF) dan Multi-Layer Perceptron (MLP). Pendekatan ini lebih fleksibel karena memungkinkan hubungan non-linear antar embedding.
+NeuMF adalah pendekatan yang mengkombinasikan dua jalur, yaitu Generalized Matrix Factorization (GMF) dan Multi-Layer Perceptron (MLP). Metode ini lebih fleksibel karena mampu menangkap hubungan non-linear antar embedding.
 
 **Arsitektur:**
-- Embedding user dan item diproses melalui dua jalur:
-  - **GMF**: menggunakan dot product seperti pada model klasik.
-  - **MLP**: menggabungkan (concatenate) embedding dan melewati beberapa fully connected layer.
-- Output kedua jalur digabung dan diproses oleh dense layer akhir.
-- Aktivasi sigmoid pada output untuk menghasilkan skor prediksi.
+- Embedding untuk user dan item diproses melalui dua jalur berbeda:
+  - **GMF**: menggunakan operasi dot product seperti pada model klasik.  
+  - **MLP**: menggabungkan (concatenate) embedding kemudian melewati beberapa fully connected layer.  
+- Output dari kedua jalur tersebut digabungkan dan diteruskan ke dense layer terakhir.  
+- Fungsi aktivasi sigmoid digunakan pada output untuk menghasilkan skor prediksi.
 
      ```python
-    def get_NeuMF_model(num_users, num_items, mf_dim=8, mlp_layers=[64,32,16,8], dropout=0.0):
-        # Input layer
-        user_input = Input(shape=(1,), name="user_input")
-        item_input = Input(shape=(1,), name="item_input")
+  from tensorflow.keras import Input, Model, layers
+import tensorflow as tf
 
-        # MF part embedding: gunakan embedding dimensi mf_dim
-        mf_user_embedding = layers.Embedding(num_users, mf_dim, name="mf_user_embedding")(user_input)
-        mf_item_embedding = layers.Embedding(num_items, mf_dim, name="mf_item_embedding")(item_input)
-        mf_user_embedding = layers.Flatten()(mf_user_embedding)
-        mf_item_embedding = layers.Flatten()(mf_item_embedding)
-        mf_vector = layers.multiply([mf_user_embedding, mf_item_embedding])
+def get_NeuMF_model(num_years, num_pages, mf_dim=8, mlp_layers=[64,32,16,8], dropout=0.0):
+    # Input layer
+    year_input = Input(shape=(1,), name="year_input")
+    page_input = Input(shape=(1,), name="page_input")
 
-        # MLP part embedding: gunakan ukuran embedding = mlp_layers[0]//2 agar jumlah dimensi tepat saat digabung
-        mlp_embedding_dim = mlp_layers[0] // 2
-        mlp_user_embedding = layers.Embedding(num_users, mlp_embedding_dim, name="mlp_user_embedding")(user_input)
-        mlp_item_embedding = layers.Embedding(num_items, mlp_embedding_dim, name="mlp_item_embedding")(item_input)
-        mlp_user_embedding = layers.Flatten()(mlp_user_embedding)
-        mlp_item_embedding = layers.Flatten()(mlp_item_embedding)
-        mlp_vector = layers.concatenate([mlp_user_embedding, mlp_item_embedding])
-        
-        # MLP layers
-        for idx, units in enumerate(mlp_layers[1:]):
-            mlp_vector = layers.Dense(units, activation='relu', name=f"mlp_dense_{idx}")(mlp_vector)
-            if dropout > 0:
-                mlp_vector = layers.Dropout(dropout)(mlp_vector)
-        
-        # Concatenate MF and MLP parts
-        neumf_vector = layers.concatenate([mf_vector, mlp_vector])
-        
-        # Final prediction layer
-        prediction = layers.Dense(1, activation="sigmoid", name="prediction")(neumf_vector)
-        
-        model = Model(inputs=[user_input, item_input], outputs=prediction)
-        return model
+    # MF part embedding
+    mf_year_embedding = layers.Embedding(num_years, mf_dim, name="mf_year_embedding")(year_input)
+    mf_page_embedding = layers.Embedding(num_pages, mf_dim, name="mf_page_embedding")(page_input)
+    mf_year_embedding = layers.Flatten()(mf_year_embedding)
+    mf_page_embedding = layers.Flatten()(mf_page_embedding)
+    mf_vector = layers.multiply([mf_year_embedding, mf_page_embedding])
+
+    # MLP part embedding
+    mlp_embedding_dim = mlp_layers[0] // 2
+    mlp_year_embedding = layers.Embedding(num_years, mlp_embedding_dim, name="mlp_year_embedding")(year_input)
+    mlp_page_embedding = layers.Embedding(num_pages, mlp_embedding_dim, name="mlp_page_embedding")(page_input)
+    mlp_year_embedding = layers.Flatten()(mlp_year_embedding)
+    mlp_page_embedding = layers.Flatten()(mlp_page_embedding)
+    mlp_vector = layers.concatenate([mlp_year_embedding, mlp_page_embedding])
+
+    # MLP layers
+    for idx, units in enumerate(mlp_layers[1:]):
+        mlp_vector = layers.Dense(units, activation='relu', name=f"mlp_dense_{idx}")(mlp_vector)
+        if dropout > 0:
+            mlp_vector = layers.Dropout(dropout)(mlp_vector)
+
+    # Concatenate MF and MLP parts
+    neumf_vector = layers.concatenate([mf_vector, mlp_vector])
+
+    # Final prediction layer
+    prediction = layers.Dense(1, activation="sigmoid", name="prediction")(neumf_vector)
+
+    model = Model(inputs=[year_input, page_input], outputs=prediction)
+    return model
      ```
 
-**Kelebihan:**
-- Dapat menangkap pola interaksi yang lebih kompleks.
-- Fleksibel karena memanfaatkan kekuatan neural network dalam pembelajaran non-linear.
+**Keunggulan:**  
+- Mampu menangkap pola interaksi yang lebih rumit dan kompleks.  
+- Lebih fleksibel dengan memanfaatkan kemampuan neural network untuk belajar hubungan non-linear.
 
-**Kekurangan:**
-- Lebih kompleks dan lambat dibanding model klasik.
-- Membutuhkan tuning hyperparameter yang lebih hati-hati.
+**Keterbatasan:**  
+- Struktur model lebih kompleks dan proses pelatihan lebih lambat dibandingkan model klasik.  
+- Memerlukan penyesuaian hyperparameter yang lebih teliti dan cermat.
 
-### Top-N Recommendation
+### Rekomendasi Top-N dari Dataset Buku
 
-Dari hasil perbandingan, terlihat bahwa kedua model memiliki beberapa kesamaan dalam rekomendasi film, seperti *The Shawshank Redemption*, *Cinema Paradiso*, dan *Lawrence of Arabia*, yang menunjukkan adanya konsistensi terhadap film-film berkualitas tinggi. Namun, **NeuMF** cenderung merekomendasikan lebih banyak film klasik dan arthouse seperti *Paths of Glory* dan *Ran*, sedangkan **RecommenderNet** lebih condong pada film-film populer dan ikonik seperti *The Godfather* dan *Memento*. Hal ini menunjukkan bahwa NeuMF mampu menangkap preferensi yang lebih halus dan kompleks, sementara RecommenderNet memberikan hasil yang lebih general dan mainstream, sesuai karakteristik arsitektur masing-masing model.
+Dari hasil perbandingan kedua model rekomendasi buku, terlihat bahwa keduanya sama-sama merekomendasikan beberapa judul populer dan berkualitas, seperti *Harry Potter and the Sorcerer’s Stone*, *Pride and Prejudice*, dan *To Kill a Mockingbird*, yang menunjukkan konsistensi dalam mengenali buku-buku favorit pembaca. Namun, **NeuMF** cenderung merekomendasikan lebih banyak buku dengan tema klasik dan literatur mendalam seperti *Crime and Punishment* dan *The Great Gatsby*, sementara model klasik berbasis matrix factorization lebih condong pada buku-buku populer dan best-seller seperti *The Hunger Games* dan *The Da Vinci Code*. Hal ini mengindikasikan bahwa NeuMF mampu menangkap preferensi yang lebih kompleks dan spesifik, sedangkan model klasik memberikan rekomendasi yang lebih umum dan mainstream, sesuai dengan karakteristik masing-masing arsitektur.
 
-Namun demikian, meskipun NeuMF memiliki diversifikasi genre yang lebih luas dalam hasil Top-N, hasil evaluasi kuantitatif seperti RMSE, MAE, dan R² menunjukkan bahwa RecommenderNet lebih akurat dalam memprediksi rating pengguna. Ini menandakan bahwa walaupun NeuMF menghasilkan rekomendasi yang terlihat "unik" atau "berbeda", ketepatan prediksi terhadap rating aktual tetap lebih baik pada RecommenderNet. Oleh karena itu, dalam konteks sistem rekomendasi berbasis rating prediction, RecommenderNet masih menjadi model yang lebih disarankan.
+Meskipun NeuMF menghasilkan rekomendasi yang lebih beragam dan “unik” dalam hal genre dan tema, hasil evaluasi kuantitatif seperti RMSE, MAE, dan R² menunjukkan bahwa model klasik matrix factorization memiliki performa prediksi rating yang sedikit lebih baik. Ini mengimplikasikan bahwa walaupun NeuMF mampu mengeksplorasi preferensi pengguna secara lebih mendalam, ketepatan prediksi rating aktual masih lebih unggul pada model klasik. Oleh karena itu, dalam konteks sistem rekomendasi berbasis prediksi rating buku, model matrix factorization tetap menjadi pilihan yang lebih direkomendasikan.
 
-| Rank | **RecommenderNet**                                          | Predicted Score | Predicted Rating | **NeuMF**                                                | Predicted Score | Predicted Rating |
-|------|---------------------------------------------------------------|------------------|-------------------|------------------------------------------------------------|------------------|-------------------|
-| 1    | Shawshank Redemption, The (1994)                             | 0.9806           | 4.9127            | Shawshank Redemption, The (1994)                          | 0.9612           | 4.8253            |
-| 2    | Godfather, The (1972)                                        | 0.9773           | 4.8977            | Dr. Strangelove or: How I Learned... (1964)              | 0.9536           | 4.7910            |
-| 3    | Cinema Paradiso (Nuovo cinema Paradiso) (1989)              | 0.9706           | 4.8678            | Godfather, The (1972)                                     | 0.9533           | 4.7901            |
-| 4    | 12 Angry Men (1957)                                          | 0.9631           | 4.8341            | Streetcar Named Desire, A (1951)                          | 0.9515           | 4.7819            |
-| 5    | Lawrence of Arabia (1962)                                    | 0.9620           | 4.8292            | Cinema Paradiso (Nuovo cinema Paradiso) (1989)           | 0.9509           | 4.7792            |
-| 6    | Godfather: Part II, The (1974)                               | 0.9617           | 4.8276            | Paths of Glory (1957)                                     | 0.9509           | 4.7791            |
-| 7    | Patton (1970)                                                | 0.9611           | 4.8248            | Lawrence of Arabia (1962)                                 | 0.9500           | 4.7752            |
-| 8    | Memento (2000)                                               | 0.9607           | 4.8232            | Ran (1985)                                                | 0.9497           | 4.7735            |
-| 9    | Amelie (Fabuleux destin d'Amélie Poulain, Le) (2001)        | 0.9598           | 4.8192            | Inside Job (2010)                                         | 0.9493           | 4.7720            |
-| 10   | Departed, The (2006)                                         | 0.9596           | 4.8182            | Three Billboards Outside Ebbing, Missouri (2017)         | 0.9491           | 4.7711            |
-
+| Rank | **RecommenderNet**                                    | Predicted Score | Predicted Rating | **NeuMF**                                  | Predicted Score | Predicted Rating |
+|-------|------------------------------------------------------|-----------------|------------------|--------------------------------------------|-----------------|------------------|
+| 1     | The Collected Letters of C.S. Lewis, Volume 1        | 0.7939          | 3.9693           | The Complete Short Stories of Mark Twain   | 0.7918          | 3.9589           |
+| 2     | Democracy in America                                  | 0.7801          | 3.9006           | Roughing It                                | 0.7888          | 3.9440           |
+| 3     | The Autobiography of Mark Twain                      | 0.7714          | 3.8569           | The Princess of the Chalet School          | 0.7884          | 3.9419           |
+| 4     | The Return of the King                                | 0.7659          | 3.8296           | I Am that                                  | 0.7882          | 3.9412           |
+| 5     | Keats's Poetry and Prose                              | 0.7619          | 3.8095           | Selected Letters, 1957-1969                 | 0.7882          | 3.9409           |
+| 6     | Cross Stitch                                         | 0.7598          | 3.7988           | Paradise                                   | 0.7872          | 3.9360           |
+| 7     | Three Complete Novels                                | 0.7579          | 3.7896           | The Mutineer                               | 0.7837          | 3.9183           |
+| 8     | Judas Unchained                                     | 0.7579          | 3.7896           | Music & Silence                            | 0.7836          | 3.9179           |
+| 9     | Ludwig Wittgenstein                                 | 0.7576          | 3.7880           | Terre                                      | 0.7831          | 3.9155           |
+| 10    | Rain of Gold                                        | 0.7551          | 3.7756           | Democracy in America                        | 0.7831          | 3.9153           |
 
 ## Evaluation
 ---
