@@ -29,8 +29,6 @@ Dalam proyek ini, dua model _collaborative filtering_ yang dikembangkan adalah:
 
 Model-model tersebut dilatih menggunakan data interaksi buatan antara `published_year` dan `num_pages` untuk mempelajari hubungan laten antar entitas, dan menghasilkan rekomendasi buku berdasarkan prediksi skor atau rating.
 
----
-
 ## 🧠 Business Understanding
 ---
 
