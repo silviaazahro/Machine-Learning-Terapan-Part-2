@@ -69,9 +69,9 @@ Dataset terdiri dari satu file utama:
 - `categories`: Kategori atau genre buku.
 - `thumbnail`: URL gambar sampul.
 - `description`: Deskripsi buku.
-- `published_year`: Tahun terbit buku (akan diasumsikan sebagai pengganti `userId`).
+- `published_year`: Tahun terbit buku.
 - `average_rating`: Rating rata-rata buku (skala 0–5).
-- `num_pages`: Jumlah halaman buku (digunakan sebagai pengganti `movieId`).
+- `num_pages`: Jumlah halaman buku.
 - `ratings_count`: Jumlah rating yang diterima buku.
 
 ### 🧹 Kondisi Data
@@ -181,7 +181,7 @@ Model ini menerapkan pendekatan collaborative filtering klasik yang diimplementa
         pages_vector = self.pages_embedding(inputs[:, 1])
         pages_bias = self.pages_bias(inputs[:, 1])
 
-        # Dot product antara user dan movie embedding
+        # Dot product antara year dan pages embedding
         dot_year_pages = tf.reduce_sum(year_vector * pages_vector, axis=1, keepdims=True)
 
         # Menambahkan bias
@@ -205,7 +205,7 @@ Model ini menerapkan pendekatan collaborative filtering klasik yang diimplementa
 NeuMF adalah pendekatan yang mengkombinasikan dua jalur, yaitu Generalized Matrix Factorization (GMF) dan Multi-Layer Perceptron (MLP). Metode ini lebih fleksibel karena mampu menangkap hubungan non-linear antar embedding.
 
 **Arsitektur:**
-- Embedding untuk user dan item diproses melalui dua jalur berbeda:
+- Embedding untuk year dan pages diproses melalui dua jalur berbeda:
   - **GMF**: menggunakan operasi dot product seperti pada model klasik.  
   - **MLP**: menggabungkan (concatenate) embedding kemudian melewati beberapa fully connected layer.  
 - Output dari kedua jalur tersebut digabungkan dan diteruskan ke dense layer terakhir.  
