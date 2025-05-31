@@ -1,58 +1,109 @@
-# Laporan Proyek Machine Learning - Collaborative Filtering pada MovieLens
+# Laporan Proyek Machine Learning - Collaborative Filtering pada Dataset Buku
+
+## 📌 Project Overview
+
+Dalam era digital yang semakin berkembang, sistem rekomendasi memiliki peranan penting dalam membantu pengguna menavigasi informasi dan pilihan produk yang sangat besar. Salah satu aplikasi populer dari sistem rekomendasi adalah pada layanan e-commerce atau platform penyedia buku. Dengan semakin banyaknya pilihan buku dan meningkatnya kebutuhan personalisasi pengalaman pengguna, sistem rekomendasi yang efektif menjadi solusi penting untuk meningkatkan _engagement_ dan kepuasan pengguna.
+
+Proyek ini bertujuan untuk membangun sistem rekomendasi berbasis _collaborative filtering_ menggunakan dataset buku yang berisi informasi metadata seperti judul, penulis, tahun terbit, jumlah halaman, rating, dan lain-lain. Fokus utama proyek ini adalah memprediksi buku yang kemungkinan besar akan disukai oleh pengguna berdasarkan kesamaan perilaku atau preferensi pengguna lain.
+
+Dataset ini bersifat publik dan mencakup berbagai atribut penting, di antaranya:
+
+- `title`: Judul buku
+- `authors`: Penulis
+- `published_year`: Tahun terbit
+- `average_rating`: Rata-rata rating pengguna
+- `num_pages`: Jumlah halaman
+- `ratings_count`: Jumlah pengguna yang memberi rating
+
+Teknik _collaborative filtering_ yang digunakan dalam proyek ini berbasis pada pendekatan **neural network embedding**, di mana fitur-fitur numerik dari pengguna dan item (dalam hal ini: tahun terbit dan jumlah halaman sebagai proxy untuk pengguna dan item) dipetakan ke dalam vektor laten untuk mempelajari pola interaksi.
+
+> 📚 Penelitian terdahulu menunjukkan bahwa pendekatan matrix factorization dan deep learning dapat memberikan hasil yang baik dalam membangun sistem rekomendasi, di antaranya:
+>
+> - Koren, Bell, & Volinsky (2009) — ["Matrix Factorization Techniques for Recommender Systems"](https://ieeexplore.ieee.org/abstract/document/5197422)
+> - Covington et al. (2016) — ["Deep Neural Networks for YouTube Recommendations"](https://dl.acm.org/doi/abs/10.1145/2959100.2959190)
+
+Dalam proyek ini, dua model _collaborative filtering_ yang dikembangkan adalah:
+
+1. **RecommenderNet** — Model sederhana berbasis embedding dan _dot product_ antara fitur pengguna dan item.
+2. **NeuMF (Neural Matrix Factorization)** — Kombinasi antara pendekatan GMF (_Generalized Matrix Factorization_) dan MLP (_Multilayer Perceptron_) yang lebih kompleks.
+
+Model-model tersebut dilatih menggunakan data interaksi buatan antara `published_year` dan `num_pages` untuk mempelajari hubungan laten antar entitas, dan menghasilkan rekomendasi buku berdasarkan prediksi skor atau rating.
+
 ---
-## Project Overview
+
+## 🧠 Business Understanding
 ---
-Dalam era digital yang semakin berkembang, sistem rekomendasi memiliki peranan penting dalam membantu pengguna menavigasi informasi dan pilihan produk yang sangat besar. Salah satu aplikasi populer dari sistem rekomendasi adalah pada layanan streaming atau platform ulasan film. Dengan semakin banyaknya pilihan film dan meningkatnya kebutuhan personalisasi pengalaman pengguna, sistem rekomendasi yang efektif menjadi solusi penting untuk meningkatkan engagement dan kepuasan pengguna. Untuk itu, proyek ini bertujuan untuk membangun sistem rekomendasi berbasis collaborative filtering menggunakan dataset [MovieLens](https://grouplens.org/datasets/movielens/).
 
-Dataset MovieLens merupakan salah satu benchmark yang paling sering digunakan dalam riset sistem rekomendasi. Teknik collaborative filtering berbasis neural network telah banyak diteliti sebagai metode untuk mempelajari preferensi pengguna. Misalnya, penelitian oleh [Koren, Bell, dan Volinsky (2009) dalam “Matrix Factorization Techniques for Recommender Systems”](https://ieeexplore.ieee.org/abstract/document/5197422) menunjukkan bagaimana pendekatan matrix factorization dapat menghasilkan prediksi rating yang akurat. Begitu pula, riset dalam [“Deep Neural Networks for YouTube Recommendations” oleh Covington et al. (2016)](https://dl.acm.org/doi/abs/10.1145/2959100.2959190) menggambarkan bagaimana teknik berbasis embedding dapat meningkatkan performa rekomendasi di lingkungan skala besar.
+### ❓ Problem Statements
 
-Dalam proyek ini, model yang dikembangkan menggunakan teknik collaborative filtering berbasis neural network untuk memprediksi film yang kemungkinan besar akan disukai oleh pengguna, berdasarkan rating yang diberikan oleh pengguna lain yang memiliki selera serupa.
+- Bagaimana memprediksi rating buku yang belum pernah dibaca oleh pengguna?
+- Bagaimana memberikan rekomendasi buku yang relevan dan dipersonalisasi untuk pengguna berdasarkan histori dan preferensi mereka?
 
-Referensi:
-1. Koren, Yehuda, Robert Bell, and Chris Volinsky. "*Matrix factorization techniques for recommender systems.*" Computer 42.8 (2009): 30-37.
-2. Covington, Paul, Jay Adams, and Emre Sargin. "*Deep neural networks for youtube recommendations.*" Proceedings of the 10th ACM conference on recommender systems. 2016.
+### 🎯 Goals
 
-## Business Understanding
+- Mengembangkan model **collaborative filtering** untuk memprediksi rating buku yang belum pernah dibaca oleh pengguna.
+- Menghasilkan **top-N rekomendasi buku** yang disesuaikan dengan karakteristik pengguna (dalam hal ini representasi waktu dan fitur konten buku seperti jumlah halaman).
+
+### 💡 Solution Statements
+
+- Menggunakan pendekatan **matrix factorization** melalui embedding fitur pengguna dan item untuk mempelajari representasi laten (_latent representations_).
+- Mengimplementasikan dua pendekatan sistem rekomendasi:
+  1. **Dot product** antara embedding pengguna (`published_year`) dan item (`num_pages`) untuk memprediksi rating — mendekati baseline matrix factorization.
+  2. **Neural Collaborative Filtering (NeuMF)** — model yang menggabungkan _Generalized Matrix Factorization (GMF)_ dan _Multi-Layer Perceptron (MLP)_ untuk meningkatkan performa prediksi.
+- Menggunakan **TensorFlow dan Keras** sebagai framework utama dalam membangun dan melatih model.
+
+## 📊 Data Understanding
 ---
-### Problem Statements
 
-- Bagaimana memprediksi rating film yang belum pernah ditonton oleh pengguna?
-- Bagaimana memberikan rekomendasi film yang relevan dan dipersonalisasi untuk pengguna berdasarkan histori rating-nya?
+Dataset yang digunakan dalam proyek ini adalah **Books Dataset** yang tersedia secara publik melalui [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/books-dataset). Dataset ini mencakup informasi bibliografis dan metrik evaluasi terhadap berbagai judul buku, dan cocok digunakan dalam proyek sistem rekomendasi berbasis konten maupun kolaboratif.
 
-### Goals
+Dataset terdiri dari satu file utama:
 
-- Mengembangkan model collaborative filtering untuk memprediksi rating film oleh pengguna.
-- Menghasilkan top-N rekomendasi film yang disesuaikan dengan preferensi pengguna.
+- `dataset_buku.csv`: berisi informasi deskriptif mengenai ribuan buku, seperti ISBN, judul, penulis, kategori, tahun terbit, jumlah halaman, rating rata-rata, dan jumlah rating.
 
-### Solution Statements
+### 🔢 Fitur-fitur dalam `dataset_buku.csv`:
 
-- Menggunakan pendekatan matrix factorization melalui embedding user dan item untuk mempelajari representasi laten.
-- Mengimplementasikan dua pendekatan:
-  1. **Dot product** antara user dan item embedding untuk prediksi rating (mirip baseline MF).
-  2. **Neural network (NeuMF)** yang menggabungkan pendekatan Matrix Factorization (MF) dan Multi-Layer Perceptron (MLP) untuk meningkatkan akurasi prediksi.
-- Menggunakan TensorFlow sebagai kerangka kerja utama dalam membangun dan melatih model.
+- `isbn13`: ID unik buku versi 13 digit.
+- `isbn10`: ID unik buku versi 10 digit.
+- `title`: Judul utama buku.
+- `subtitle`: Subjudul (jika tersedia).
+- `authors`: Nama penulis.
+- `categories`: Kategori atau genre buku.
+- `thumbnail`: URL gambar sampul.
+- `description`: Deskripsi buku.
+- `published_year`: Tahun terbit buku (akan diasumsikan sebagai pengganti `userId`).
+- `average_rating`: Rating rata-rata buku (skala 0–5).
+- `num_pages`: Jumlah halaman buku (digunakan sebagai pengganti `movieId`).
+- `ratings_count`: Jumlah rating yang diterima buku.
 
-## Data Understanding
----
-Dataset yang digunakan adalah **MovieLens 100K**, yang tersedia secara publik melalui [GroupLens Research](https://grouplens.org/datasets/movielens/). Dataset ini sering digunakan sebagai benchmark dalam sistem rekomendasi.
+### 🧹 Kondisi Data
 
-Dataset terdiri dari empat file utama:
+Dataset ini memiliki beberapa nilai yang hilang (*missing values*) pada kolom-kolom berikut:
 
-- `ratings.csv`: berisi 100.000 data rating yang diberikan oleh 943 pengguna terhadap 1.682 film. Kolom: `userId`, `movieId`, `rating`, `timestamp`.
-- `movies.csv`: berisi 1.682 data film, dengan kolom `movieId`, `title`, dan `genres`.
-- `tags.csv`: mencakup data tag yang diberikan oleh pengguna. Tidak digunakan dalam proyek ini.
-- `links.csv`: berisi relasi antara `movieId` dengan ID dari IMDb dan TMDb. Tidak digunakan dalam proyek ini.
+| Kolom            | Jumlah Missing Value |
+|------------------|----------------------|
+| subtitle         | 4.429                |
+| authors          | 72                   |
+| categories       | 99                   |
+| thumbnail        | 329                  |
+| description      | 262                  |
+| published_year   | 6                    |
+| average_rating   | 43                   |
+| num_pages        | 43                   |
+| ratings_count    | 43                   |
 
-### Fitur-fitur dalam `ratings.csv`:
-- `userId`: ID unik untuk pengguna.
-- `movieId`: ID unik untuk film.
-- `rating`: Nilai antara 0.5 hingga 5.0 (dalam kelipatan 0.5).
-- `timestamp`: Waktu pemberian rating dalam Unix Time.
+> Kolom `isbn13`, `isbn10`, dan `title` tidak memiliki nilai yang hilang.
 
-### Kondisi Data
-- Tidak ditemukan missing value pada file `ratings.csv`.
-- Distribusi rating cenderung bias ke nilai tinggi, dengan rating 4.0 dan 5.0 paling sering muncul.
-- Beberapa pengguna memberikan banyak rating, sementara beberapa lainnya hanya memberikan sedikit.
+### 🧭 Distribusi Data
+
+- `published_year` memiliki rentang dari **1853** hingga **2019**, mencakup lebih dari satu abad penerbitan buku.
+- `num_pages` berkisar dari puluhan hingga lebih dari seribu halaman, mencerminkan variasi panjang buku yang sangat besar.
+- `average_rating` menunjukkan kecenderungan distribusi skewed ke arah nilai tinggi, mirip dengan dataset rating pada sistem rekomendasi lainnya.
+- `ratings_count` sangat bervariasi; beberapa buku mendapatkan ribuan rating, sementara sebagian lainnya hanya beberapa.
+
+### 📌 Catatan
+
+Karena tidak tersedia informasi `userId` eksplisit, pendekatan simulatif digunakan untuk membangun sistem rekomendasi, di mana `published_year` diasumsikan mewakili sekelompok pembaca dari generasi yang sama, dan digunakan sebagai pengganti `userId` dalam konteks model rekomendasi berbasis collaborative filtering.
 
 ### Visualisasi Distribusi Data Rating
 Grafik menunjukkan jumlah frekuensi untuk setiap nilai rating mulai dari 0.5 hingga 5.0. Terlihat bahwa rating 4 memiliki jumlah paling tinggi, diikuti oleh rating 3 dan 5, yang menandakan bahwa sebagian besar pengguna memberikan ulasan positif terhadap aplikasi yang mereka nilai.
