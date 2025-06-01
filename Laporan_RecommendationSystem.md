@@ -53,7 +53,7 @@ Model-model tersebut dilatih menggunakan data interaksi buatan antara `published
 ## 📊 Data Understanding
 ---
 
-Dataset yang digunakan dalam proyek ini adalah **Books Dataset** yang tersedia secara publik melalui [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/books-dataset). Dataset ini mencakup informasi bibliografis dan metrik evaluasi terhadap berbagai judul buku, dan cocok digunakan dalam proyek sistem rekomendasi berbasis konten maupun kolaboratif.
+Dataset yang digunakan dalam proyek ini adalah **Books Dataset** yang tersedia secara publik melalui [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/books-dataset). Dataset ini mencakup informasi bibliografis dan metrik evaluasi terhadap berbagai judul buku, dan cocok digunakan dalam proyek sistem rekomendasi berbasis konten maupun kolaboratif. Dataset berjumlah 12 kolom, 6810 baris dan dataset kotor yang masih terdapat missing values pada kolom subtitle, authors, categories, thumbnail, description, description, published_year, average_rating, num_pages, ratings_count, dataset ini diambil dari platform
 
 Dataset terdiri dari satu file utama:
 
@@ -129,9 +129,25 @@ Boxplot berikut menampilkan ringkasan statistik nilai rating buku, termasuk nila
 ---
 Beberapa tahapan dalam persiapan data yang dilakukan meliputi:
 
-1. **Encoding**: Mengonversi variabel *published_year* dan *num_pages* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.  
-2. **Normalisasi**: Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.  
-3. **Pembagian Dataset**: Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
+1. **Penanganan Missing Value:**
+        * Teknik: Imputasi dengan nilai mean dan median.
+        * Kode Snippet:
+            ```python
+             data['subtitle'] = data['subtitle'].fillna('')
+             data['authors'] = data['authors'].fillna('Unknown')
+             data['categories'] = data['categories'].fillna('Other')
+             data['thumbnail'] = data['thumbnail'].fillna('https://example.com/default-thumbnail.jpg')
+             data['description'] = data['description'].fillna('No description available')
+             data['published_year'] = data['published_year'].fillna(data['published_year'].median())
+             data['average_rating'] = data['average_rating'].fillna(data['average_rating'].mean())
+             data['num_pages'] = data['num_pages'].fillna(data['num_pages'].median())
+             data['ratings_count'] = data['ratings_count'].fillna(0)
+            ```
+        * Proses: Missing value pada fitur `bmi` diisi dengan nilai median dari fitur tersebut.
+        * Alasan: Fitur `bmi` memiliki missing value yang cukup signifikan. Imputasi dengan median dipilih karena mean dan median robust terhadap outlier, yang mungkin ada dalam distribusi `bmi`. Hal ini mencegah outlier mendistorsi representasi tipikal dari data.
+3. **Encoding**: Mengonversi variabel *published_year* dan *num_pages* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.  
+4. **Normalisasi**: Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.  
+5. **Pembagian Dataset**: Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
 
 Tahapan ini dilakukan agar data siap digunakan secara efektif dalam model deep learning.
 
@@ -316,9 +332,9 @@ Walaupun **R²** bukan metrik utama dalam sistem rekomendasi, penggunaannya bisa
 
 | Metrik  | RecommenderNet | NeuMF    |
 |---------|----------------|----------|
-| RMSE    | 0.4445         | 0.3505   |
-| MAE     | 0.3133         | 0.2454   |
-| R²      | -0.7092        | -0.0624  |
+| RMSE    | 0.450705         | 0.346713   |
+| MAE     | 0.319360         | 0.242892   |
+| R²      | -0.757065        | -0.039785  |
 
 **Analisis:**
 - Model **NeuMF** menunjukkan performa **lebih unggul** dibandingkan RecommenderNet berdasarkan ketiga metrik evaluasi.
