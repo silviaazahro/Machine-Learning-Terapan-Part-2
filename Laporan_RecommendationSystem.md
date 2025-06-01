@@ -130,11 +130,11 @@ Boxplot berikut menampilkan ringkasan statistik nilai rating buku, termasuk nila
 Beberapa tahapan dalam persiapan data yang dilakukan meliputi:
 
 1. **Penanganan Missing Value:**
-        * Teknik: Imputasi dengan nilai mean dan median.
-        * Kode Snippet:
+     * Teknik: Imputasi dengan nilai mean dan median.
+     * * Kode Snippet:
           ```python
-data['subtitle'] = data['subtitle'].fillna('')
-data['authors'] = data['authors'].fillna('Unknown')
+          data['subtitle'] = data['subtitle'].fillna('')
+          data['authors'] = data['authors'].fillna('Unknown')
 data['categories'] = data['categories'].fillna('Other')
 data['thumbnail'] = data['thumbnail'].fillna('https://example.com/default-thumbnail.jpg')
 data['description'] = data['description'].fillna('No description available')
