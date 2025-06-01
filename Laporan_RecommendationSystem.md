@@ -282,17 +282,17 @@ Dari hasil perbandingan kedua model rekomendasi buku, terlihat bahwa keduanya sa
 Meskipun NeuMF menghasilkan rekomendasi yang lebih beragam dan “unik” dalam hal genre dan tema, hasil evaluasi kuantitatif seperti RMSE, MAE, dan R² menunjukkan bahwa model klasik matrix factorization memiliki performa prediksi rating yang sedikit lebih baik. Ini mengimplikasikan bahwa walaupun NeuMF mampu mengeksplorasi preferensi pengguna secara lebih mendalam, ketepatan prediksi rating aktual masih lebih unggul pada model klasik. Oleh karena itu, dalam konteks sistem rekomendasi berbasis prediksi rating buku, model matrix factorization tetap menjadi pilihan yang lebih direkomendasikan.
 
 | Rank | **RecommenderNet**                                    | Predicted Score | Predicted Rating | **NeuMF**                                  | Predicted Score | Predicted Rating |
-|-------|------------------------------------------------------|-----------------|------------------|--------------------------------------------|-----------------|------------------|
-| 1     | The Collected Letters of C.S. Lewis, Volume 1        | 0.7939          | 3.9693           | The Complete Short Stories of Mark Twain   | 0.7918          | 3.9589           |
-| 2     | Democracy in America                                  | 0.7801          | 3.9006           | Roughing It                                | 0.7888          | 3.9440           |
-| 3     | The Autobiography of Mark Twain                      | 0.7714          | 3.8569           | The Princess of the Chalet School          | 0.7884          | 3.9419           |
-| 4     | The Return of the King                                | 0.7659          | 3.8296           | I Am that                                  | 0.7882          | 3.9412           |
-| 5     | Keats's Poetry and Prose                              | 0.7619          | 3.8095           | Selected Letters, 1957-1969                 | 0.7882          | 3.9409           |
-| 6     | Cross Stitch                                         | 0.7598          | 3.7988           | Paradise                                   | 0.7872          | 3.9360           |
-| 7     | Three Complete Novels                                | 0.7579          | 3.7896           | The Mutineer                               | 0.7837          | 3.9183           |
-| 8     | Judas Unchained                                     | 0.7579          | 3.7896           | Music & Silence                            | 0.7836          | 3.9179           |
-| 9     | Ludwig Wittgenstein                                 | 0.7576          | 3.7880           | Terre                                      | 0.7831          | 3.9155           |
-| 10    | Rain of Gold                                        | 0.7551          | 3.7756           | Democracy in America                        | 0.7831          | 3.9153           |
+|------|--------------------------------------------------------|-----------------|------------------|---------------------------------------------|-----------------|------------------|
+| 1    | The Forbidden                                          | 0.7380          | 3.6901           | The Principles of Psychology                | 0.8303          | 4.1513           |
+| 2    | Angel Christmas                                        | 0.7343          | 3.6714           | The Collected Letters of C.S. Lewis, Volume 1 | 0.8287       | 4.1436           |
+| 3    | The Picture of Dorian Gray                             | 0.7292          | 3.6459           | Ludwig Wittgenstein                         | 0.8280          | 4.1400           |
+| 4    | The Collected Letters of C.S. Lewis, Volume 1          | 0.7264          | 3.6320           | Black Holes and Time Warps                  | 0.8274          | 4.1370           |
+| 5    | Philosophy and the Mirror of Nature                    | 0.7239          | 3.6194           | Harry Potter and the Goblet of Fire         | 0.8269          | 4.1347           |
+| 6    | The Complete Short Stories of Mark Twain               | 0.7225          | 3.6124           | Cryptonomicon                               | 0.8267          | 4.1337           |
+| 7    | The Mutineer                                           | 0.7207          | 3.6034           | Cross Stitch                                | 0.8263          | 4.1313           |
+| 8    | Code Word Kangaroo                                     | 0.7202          | 3.6010           | The Complete Short Stories of Mark Twain    | 0.8256          | 4.1280           |
+| 9    | East Wind, West Wind                                   | 0.7198          | 3.5988           | The Shining                                 | 0.8255          | 4.1274           |
+| 10   | Fat Pig                                                | 0.7169          | 3.5847           | The Fellowship of the Ring                  | 0.8248          | 4.1242           |
 
 ## Evaluation
 ---
