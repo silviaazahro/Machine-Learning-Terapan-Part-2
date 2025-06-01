@@ -133,15 +133,15 @@ Beberapa tahapan dalam persiapan data yang dilakukan meliputi:
         * Teknik: Imputasi dengan nilai mean dan median.
         * Kode Snippet:
             ```python
-             data['subtitle'] = data['subtitle'].fillna('')
-             data['authors'] = data['authors'].fillna('Unknown')
-             data['categories'] = data['categories'].fillna('Other')
-             data['thumbnail'] = data['thumbnail'].fillna('https://example.com/default-thumbnail.jpg')
-             data['description'] = data['description'].fillna('No description available')
-             data['published_year'] = data['published_year'].fillna(data['published_year'].median())
-             data['average_rating'] = data['average_rating'].fillna(data['average_rating'].mean())
-             data['num_pages'] = data['num_pages'].fillna(data['num_pages'].median())
-             data['ratings_count'] = data['ratings_count'].fillna(0)
+   data['subtitle'] = data['subtitle'].fillna('')
+   data['authors'] = data['authors'].fillna('Unknown')
+   data['categories'] = data['categories'].fillna('Other')
+   data['thumbnail'] = data['thumbnail'].fillna('https://example.com/default-thumbnail.jpg')
+   data['description'] = data['description'].fillna('No description available')
+   data['published_year'] = data['published_year'].fillna(data['published_year'].median())
+   data['average_rating'] = data['average_rating'].fillna(data['average_rating'].mean())
+   data['num_pages'] = data['num_pages'].fillna(data['num_pages'].median())
+   data['ratings_count'] = data['ratings_count'].fillna(0)
             ```
         * Proses: Missing value pada fitur `bmi` diisi dengan nilai median dari fitur tersebut.
         * Alasan: Fitur `bmi` memiliki missing value yang cukup signifikan. Imputasi dengan median dipilih karena mean dan median robust terhadap outlier, yang mungkin ada dalam distribusi `bmi`. Hal ini mencegah outlier mendistorsi representasi tipikal dari data.
