@@ -87,15 +87,11 @@ Grafik batang di bawah ini menunjukkan frekuensi masing-masing nilai rating buku
 
 ![Distribusi Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/Distribusi%20Rating.png)
 
----
-
 ### 🧱 Visualisasi Histogram Data Rating
 
 Histogram di bawah ini menggambarkan penyebaran nilai rating dalam bentuk batang berwarna biru muda. Pola distribusinya mirip dengan grafik distribusi sebelumnya, di mana rating tinggi (khususnya 4.0) mendominasi. Ini menunjukkan bahwa persepsi pembaca terhadap buku dalam dataset ini cenderung positif.
 
 ![Histogram Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/Histogram%20Rating.png)
-
----
 
 ### 📦 Visualisasi Boxplot Data Rating
 
@@ -107,25 +103,9 @@ Boxplot berikut menampilkan ringkasan statistik nilai rating buku, termasuk nila
 ---
 Beberapa tahapan dalam persiapan data yang dilakukan meliputi:
 
-1. **Penanganan Missing Value:**
-     * Teknik: Imputasi dengan nilai mean dan median.
-     * * Kode Snippet:
-          ```python
-          data['subtitle'] = data['subtitle'].fillna('')
-          data['authors'] = data['authors'].fillna('Unknown')
-          data['categories'] = data['categories'].fillna('Other')
-          data['thumbnail'] = data['thumbnail'].fillna('https://example.com/default-thumbnail.jpg')
-          data['description'] = data['description'].fillna('No description available')
-          data['published_year'] = data['published_year'].fillna(data['published_year'].median())
-          data['average_rating'] = data['average_rating'].fillna(data['average_rating'].mean())
-          data['num_pages'] = data['num_pages'].fillna(data['num_pages'].median())
-          data['ratings_count'] = data['ratings_count'].fillna(0)
-            ```
-        * Proses: Missing value pada fitur `bmi` diisi dengan nilai median dari fitur tersebut.
-        * Alasan: Fitur `bmi` memiliki missing value yang cukup signifikan. Imputasi dengan median dipilih karena mean dan median robust terhadap outlier, yang mungkin ada dalam distribusi `bmi`. Hal ini mencegah outlier mendistorsi representasi tipikal dari data.
-3. **Encoding**: Mengonversi variabel *published_year* dan *num_pages* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.  
-4. **Normalisasi**: Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.  
-5. **Pembagian Dataset**: Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
+1. **Encoding**: Mengonversi variabel *user_id* dan *book_is* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.
+2. **Normalisasi**: Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.
+3. **Pembagian Dataset**: Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
 
 Tahapan ini dilakukan agar data siap digunakan secara efektif dalam model deep learning.
 
@@ -139,49 +119,49 @@ Dalam proyek ini, dikembangkan dua jenis model rekomendasi berbasis collaborativ
 Model ini menerapkan pendekatan collaborative filtering klasik yang diimplementasikan dengan menggunakan layer embedding pada TensorFlow.
 
 **Arsitektur:**
-- Terdapat dua embedding layer, masing-masing untuk *year* dan *pages*.  
+- Terdapat dua embedding layer, masing-masing untuk *user* dan *book*.  
 - Skor kecocokan dihitung melalui operasi **dot product** antar embedding tersebut.  
 - Ditambahkan bias dan fungsi aktivasi sigmoid agar output berada pada rentang 0 hingga 1.
 
      ```python
      class RecommenderNet(tf.keras.Model):
-    def __init__(self, num_year, num_pages, embedding_size, **kwargs):
+    def __init__(self, num_user, num_book, embedding_size, **kwargs):
         super(RecommenderNet, self).__init__(**kwargs)
-        self.num_year = num_year
-        self.num_pages = num_pages
+        self.num_user = num_user
+        self.num_book = num_book
         self.embedding_size = embedding_size
 
-        # Embedding untuk year
-        self.year_embedding = layers.Embedding(
-            num_year,
+        # Embedding dan bias untuk user
+        self.user_embedding = layers.Embedding(
+            num_user,
             embedding_size,
             embeddings_initializer='he_normal',
             embeddings_regularizer=keras.regularizers.l2(1e-6)
         )
-        self.year_bias = layers.Embedding(num_year, 1)
+        self.user_bias = layers.Embedding(num_user, 1)
 
-        # Embedding untuk pages
-        self.pages_embedding = layers.Embedding(
-            num_pages,
+        # Embedding dan bias untuk book
+        self.book_embedding = layers.Embedding(
+            num_book,
             embedding_size,
             embeddings_initializer='he_normal',
             embeddings_regularizer=keras.regularizers.l2(1e-6)
         )
-        self.pages_bias = layers.Embedding(num_pages, 1)
+        self.book_bias = layers.Embedding(num_book, 1)
 
     def call(self, inputs):
-        year_vector = self.year_embedding(inputs[:, 0])
-        year_bias = self.year_bias(inputs[:, 0])
-        pages_vector = self.pages_embedding(inputs[:, 1])
-        pages_bias = self.pages_bias(inputs[:, 1])
+        user_vector = self.user_embedding(inputs[:, 0])
+        user_bias = self.user_bias(inputs[:, 0])
+        book_vector = self.book_embedding(inputs[:, 1])
+        book_bias = self.book_bias(inputs[:, 1])
 
-        # Dot product antara year dan pages embedding
-        dot_year_pages = tf.reduce_sum(year_vector * pages_vector, axis=1, keepdims=True)
+        # Dot product antara user dan book embeddings
+        dot_user_book = tf.reduce_sum(user_vector * book_vector, axis=1, keepdims=True)
 
         # Menambahkan bias
-        x = dot_year_pages + year_bias + pages_bias
+        x = dot_user_book + user_bias + book_bias
 
-        # Aktivasi sigmoid untuk output antara 0 dan 1
+        # Aktivasi sigmoid untuk output rating (0 - 1)
         return tf.nn.sigmoid(x)
      ```
 
@@ -191,7 +171,7 @@ Model ini menerapkan pendekatan collaborative filtering klasik yang diimplementa
 - Ideal digunakan sebagai baseline atau model awal.
 
 **Keterbatasan:**  
-- Hubungan antara *year* dan *pages* hanya bersifat linear.  
+- Hubungan antara *user* dan *book* hanya bersifat linear.  
 - Kurang mampu menangkap pola kompleks atau non-linear dalam preferensi pengguna.
 
 ### 2. **Neural Matrix Factorization (NeuMF)**
@@ -199,7 +179,7 @@ Model ini menerapkan pendekatan collaborative filtering klasik yang diimplementa
 NeuMF adalah pendekatan yang mengkombinasikan dua jalur, yaitu Generalized Matrix Factorization (GMF) dan Multi-Layer Perceptron (MLP). Metode ini lebih fleksibel karena mampu menangkap hubungan non-linear antar embedding.
 
 **Arsitektur:**
-- Embedding untuk year dan pages diproses melalui dua jalur berbeda:
+- Embedding untuk user dan book diproses melalui dua jalur berbeda:
   - **GMF**: menggunakan operasi dot product seperti pada model klasik.  
   - **MLP**: menggabungkan (concatenate) embedding kemudian melewati beberapa fully connected layer.  
 - Output dari kedua jalur tersebut digabungkan dan diteruskan ke dense layer terakhir.  
@@ -209,39 +189,39 @@ NeuMF adalah pendekatan yang mengkombinasikan dua jalur, yaitu Generalized Matri
   from tensorflow.keras import Input, Model, layers
 import tensorflow as tf
 
-def get_NeuMF_model(num_years, num_pages, mf_dim=8, mlp_layers=[64,32,16,8], dropout=0.0):
+def get_NeuMF_model(num_users, num_books, mf_dim=8, mlp_layers=[64, 32, 16, 8], dropout=0.0):
     # Input layer
-    year_input = Input(shape=(1,), name="year_input")
-    page_input = Input(shape=(1,), name="page_input")
+    user_input = Input(shape=(1,), name="user_input")
+    book_input = Input(shape=(1,), name="book_input")
 
     # MF part embedding
-    mf_year_embedding = layers.Embedding(num_years, mf_dim, name="mf_year_embedding")(year_input)
-    mf_page_embedding = layers.Embedding(num_pages, mf_dim, name="mf_page_embedding")(page_input)
-    mf_year_embedding = layers.Flatten()(mf_year_embedding)
-    mf_page_embedding = layers.Flatten()(mf_page_embedding)
-    mf_vector = layers.multiply([mf_year_embedding, mf_page_embedding])
+    mf_user_embedding = layers.Embedding(num_users, mf_dim, name="mf_user_embedding")(user_input)
+    mf_book_embedding = layers.Embedding(num_books, mf_dim, name="mf_book_embedding")(book_input)
+    mf_user_embedding = layers.Flatten()(mf_user_embedding)
+    mf_book_embedding = layers.Flatten()(mf_book_embedding)
+    mf_vector = layers.multiply([mf_user_embedding, mf_book_embedding])
 
     # MLP part embedding
     mlp_embedding_dim = mlp_layers[0] // 2
-    mlp_year_embedding = layers.Embedding(num_years, mlp_embedding_dim, name="mlp_year_embedding")(year_input)
-    mlp_page_embedding = layers.Embedding(num_pages, mlp_embedding_dim, name="mlp_page_embedding")(page_input)
-    mlp_year_embedding = layers.Flatten()(mlp_year_embedding)
-    mlp_page_embedding = layers.Flatten()(mlp_page_embedding)
-    mlp_vector = layers.concatenate([mlp_year_embedding, mlp_page_embedding])
+    mlp_user_embedding = layers.Embedding(num_users, mlp_embedding_dim, name="mlp_user_embedding")(user_input)
+    mlp_book_embedding = layers.Embedding(num_books, mlp_embedding_dim, name="mlp_book_embedding")(book_input)
+    mlp_user_embedding = layers.Flatten()(mlp_user_embedding)
+    mlp_book_embedding = layers.Flatten()(mlp_book_embedding)
+    mlp_vector = layers.concatenate([mlp_user_embedding, mlp_book_embedding])
 
-    # MLP layers
+    # MLP hidden layers
     for idx, units in enumerate(mlp_layers[1:]):
         mlp_vector = layers.Dense(units, activation='relu', name=f"mlp_dense_{idx}")(mlp_vector)
         if dropout > 0:
             mlp_vector = layers.Dropout(dropout)(mlp_vector)
 
-    # Concatenate MF and MLP parts
+    # Gabungkan MF dan MLP
     neumf_vector = layers.concatenate([mf_vector, mlp_vector])
 
     # Final prediction layer
     prediction = layers.Dense(1, activation="sigmoid", name="prediction")(neumf_vector)
 
-    model = Model(inputs=[year_input, page_input], outputs=prediction)
+    model = Model(inputs=[user_input, book_input], outputs=prediction)
     return model
      ```
 
@@ -255,22 +235,29 @@ def get_NeuMF_model(num_years, num_pages, mf_dim=8, mlp_layers=[64,32,16,8], dro
 
 ### Rekomendasi Top-N dari Dataset Buku
 
-Dari hasil perbandingan kedua model rekomendasi buku, terlihat bahwa keduanya sama-sama merekomendasikan beberapa judul populer dan berkualitas, seperti *Harry Potter and the Sorcerer’s Stone*, *Pride and Prejudice*, dan *To Kill a Mockingbird*, yang menunjukkan konsistensi dalam mengenali buku-buku favorit pembaca. Namun, **NeuMF** cenderung merekomendasikan lebih banyak buku dengan tema klasik dan literatur mendalam seperti *Crime and Punishment* dan *The Great Gatsby*, sementara model klasik berbasis matrix factorization lebih condong pada buku-buku populer dan best-seller seperti *The Hunger Games* dan *The Da Vinci Code*. Hal ini mengindikasikan bahwa NeuMF mampu menangkap preferensi yang lebih kompleks dan spesifik, sedangkan model klasik memberikan rekomendasi yang lebih umum dan mainstream, sesuai dengan karakteristik masing-masing arsitektur.
+Dari hasil perbandingan kedua model rekomendasi buku, terlihat bahwa keduanya sama-sama merekomendasikan beberapa judul unik dan relevan, seperti *Interesting take can* karya **Rebecca Harrington** dan *Front accept after* karya **Lee Singh**, yang muncul pada kedua model. Ini menunjukkan adanya konsistensi dalam mengenali preferensi pengguna terhadap buku-buku tertentu.
 
-Meskipun NeuMF menghasilkan rekomendasi yang lebih beragam dan “unik” dalam hal genre dan tema, hasil evaluasi kuantitatif seperti RMSE, MAE, dan R² menunjukkan bahwa model klasik matrix factorization memiliki performa prediksi rating yang sedikit lebih baik. Ini mengimplikasikan bahwa walaupun NeuMF mampu mengeksplorasi preferensi pengguna secara lebih mendalam, ketepatan prediksi rating aktual masih lebih unggul pada model klasik. Oleh karena itu, dalam konteks sistem rekomendasi berbasis prediksi rating buku, model matrix factorization tetap menjadi pilihan yang lebih direkomendasikan.
+Namun, **NeuMF** cenderung menghasilkan skor prediksi yang lebih terkonsentrasi dan sedikit lebih rendah dibandingkan dengan **RecommenderNet**, mengindikasikan bahwa NeuMF mungkin lebih konservatif dalam menilai kecocokan antara pengguna dan buku, serta lebih eksploratif terhadap buku dengan tema-tema yang kurang umum seperti *Name sign day significant* dan *Artist feel perform full*.
 
-| Rank | **RecommenderNet**                                    | Predicted Score | Predicted Rating | **NeuMF**                                  | Predicted Score | Predicted Rating |
-|------|--------------------------------------------------------|-----------------|------------------|---------------------------------------------|-----------------|------------------|
-| 1    | The Forbidden                                          | 0.7380          | 3.6901           | The Principles of Psychology                | 0.8303          | 4.1513           |
-| 2    | Angel Christmas                                        | 0.7343          | 3.6714           | The Collected Letters of C.S. Lewis, Volume 1 | 0.8287       | 4.1436           |
-| 3    | The Picture of Dorian Gray                             | 0.7292          | 3.6459           | Ludwig Wittgenstein                         | 0.8280          | 4.1400           |
-| 4    | The Collected Letters of C.S. Lewis, Volume 1          | 0.7264          | 3.6320           | Black Holes and Time Warps                  | 0.8274          | 4.1370           |
-| 5    | Philosophy and the Mirror of Nature                    | 0.7239          | 3.6194           | Harry Potter and the Goblet of Fire         | 0.8269          | 4.1347           |
-| 6    | The Complete Short Stories of Mark Twain               | 0.7225          | 3.6124           | Cryptonomicon                               | 0.8267          | 4.1337           |
-| 7    | The Mutineer                                           | 0.7207          | 3.6034           | Cross Stitch                                | 0.8263          | 4.1313           |
-| 8    | Code Word Kangaroo                                     | 0.7202          | 3.6010           | The Complete Short Stories of Mark Twain    | 0.8256          | 4.1280           |
-| 9    | East Wind, West Wind                                   | 0.7198          | 3.5988           | The Shining                                 | 0.8255          | 4.1274           |
-| 10   | Fat Pig                                                | 0.7169          | 3.5847           | The Fellowship of the Ring                  | 0.8248          | 4.1242           |
+Sementara itu, **RecommenderNet** menunjukkan kecenderungan merekomendasikan buku-buku dengan nilai prediksi yang lebih tinggi, seperti *Example trade increase attention though* oleh **Joel Morris** dan *Indeed sing* oleh **Wesley Cobb**, yang bisa jadi lebih bersifat mainstream dan mudah dikenali oleh model karena pola interaksi pengguna yang lebih eksplisit.
+
+Meskipun **NeuMF** menghasilkan rekomendasi yang lebih beragam dan “unik” dalam hal isi dan genre, hasil prediksi menunjukkan bahwa **RecommenderNet** memiliki skor prediksi rating yang sedikit lebih tinggi, yang dapat mengindikasikan kecocokan model ini dalam konteks preferensi pengguna secara umum. Hal ini sejalan dengan karakteristik masing-masing arsitektur, di mana **RecommenderNet** (matrix factorization) lebih fokus pada hubungan laten pengguna-buku, sementara **NeuMF** mengombinasikan pendekatan eksplisit dan implisit untuk menangkap preferensi yang lebih kompleks.
+
+Oleh karena itu, dalam konteks sistem rekomendasi berbasis prediksi rating buku yang mengutamakan generalisasi dan ketepatan prediksi, model **RecommenderNet** tetap menjadi pilihan yang lebih direkomendasikan untuk kasus ini.
+
+| Rank | **RecommenderNet**                     | Predicted Score | Predicted Rating | **NeuMF**                        | Predicted Score | Predicted Rating |
+|-------|--------------------------------------|-----------------|------------------|---------------------------------|-----------------|------------------|
+| 1     | Example trade increase attention though | 0.5291          | 3.1162           | Three become note law            | 0.5021          | 3.0084           |
+| 2     | Indeed sing                          | 0.5217          | 3.0868           | Seven material third owner chair | 0.5017          | 3.0069           |
+| 3     | Interesting take can                | 0.5191          | 3.0762           | Interesting take can             | 0.5016          | 3.0065           |
+| 4     | Doctor much bag civil               | 0.5176          | 3.0703           | Artist feel perform full        | 0.5014          | 3.0054           |
+| 5     | Front accept after                  | 0.5171          | 3.0682           | Name sign day significant       | 0.5011          | 3.0044           |
+| 6     | Herself manage                     | 0.5149          | 3.0597           | Along and lay                   | 0.5011          | 3.0043           |
+| 7     | Own trade possible                  | 0.5144          | 3.0578           | Should rule                    | 0.5011          | 3.0043           |
+| 8     | Early gun ask                     | 0.5144          | 3.0577           | Name sign day significant       | 0.5011          | 3.0042           |
+| 9     | Model far do better               | 0.5140          | 3.0560           | Front accept after              | 0.5010          | 3.0038           |
+| 10    | Of social democratic              | 0.5140          | 3.0560           | Car decision lot                | 0.5009          | 3.0035           |
+
 
 ## Evaluation
 ---
@@ -310,16 +297,16 @@ Walaupun **R²** bukan metrik utama dalam sistem rekomendasi, penggunaannya bisa
 
 | Metrik  | RecommenderNet | NeuMF    |
 |---------|----------------|----------|
-| RMSE    | 0.450705         | 0.346713   |
-| MAE     | 0.319360         | 0.242892   |
-| R²      | -0.757065        | -0.039785  |
+| RMSE    | 1.415598       | 1.417750 |
+| MAE     | 1.214512       | 1.209832 |
+| R²      | 0.002117       | -0.000920|
 
 **Analisis:**
-- Model **NeuMF** menunjukkan performa **lebih unggul** dibandingkan RecommenderNet berdasarkan ketiga metrik evaluasi.
-- Nilai **RMSE** (Root Mean Squared Error) dan **MAE** (Mean Absolute Error) yang lebih rendah pada NeuMF menunjukkan bahwa model ini mampu memprediksi rating dengan tingkat kesalahan yang lebih kecil.
-- Walaupun nilai **R²** pada kedua model negatif (menunjukkan bahwa model belum menjelaskan variasi data dengan baik), nilai **R² pada NeuMF lebih tinggi**, menandakan performa yang relatif lebih stabil.
-
-Secara keseluruhan, model **NeuMF** lebih direkomendasikan dalam konteks prediksi rating buku pada dataset ini karena menghasilkan prediksi yang lebih akurat.
+- Model **RecommenderNet** dan **NeuMF** menunjukkan performa yang sangat mirip berdasarkan metrik RMSE dan MAE.
+- NeuMF memiliki nilai **MAE** yang sedikit lebih rendah dibanding RecommenderNet, menandakan prediksi absolutnya sedikit lebih akurat secara rata-rata.
+- Sebaliknya, RecommenderNet memiliki nilai **RMSE** sedikit lebih rendah, mengindikasikan kesalahan kuadrat rata-rata yang sedikit lebih kecil.
+- Pada metrik **R²**, RecommenderNet memiliki nilai positif sangat kecil, sementara NeuMF sedikit negatif. Hal ini menunjukkan kedua model belum mampu menjelaskan variasi data dengan baik, namun RecommenderNet menunjukkan kemampuan yang sedikit lebih baik dalam menjelaskan variasi tersebut.
+- Secara keseluruhan, perbedaan performa kedua model sangat kecil dan keduanya dapat dianggap hampir setara dalam konteks dataset ini.
 
 ## ✅ Kesimpulan dan Rencana Pengembangan ke Depan
 ---
