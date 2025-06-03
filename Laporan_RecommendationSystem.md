@@ -8,12 +8,12 @@ Proyek ini bertujuan untuk membangun sistem rekomendasi berbasis _collaborative 
 
 Dataset ini bersifat publik dan mencakup berbagai atribut penting, di antaranya:
 
-- `title`: Judul buku
-- `authors`: Penulis
-- `published_year`: Tahun terbit
-- `average_rating`: Rata-rata rating pengguna
-- `num_pages`: Jumlah halaman
-- `ratings_count`: Jumlah pengguna yang memberi rating
+- **user_id**: ID pengguna dalam format `Uxxxx`.
+- **book_id**: ID buku dalam format `Bxxxx`.
+- **rating**: Nilai rating dari pengguna, skala 1-5.
+- **author**: Nama penulis buku.
+- **publisher**: Nama penerbit buku.
+- **book_title**: Judul buku.
 
 Teknik _collaborative filtering_ yang digunakan dalam proyek ini berbasis pada pendekatan **neural network embedding**, di mana fitur-fitur numerik dari pengguna dan item (dalam hal ini: tahun terbit dan jumlah halaman sebagai proxy untuk pengguna dan item) dipetakan ke dalam vektor laten untuk mempelajari pola interaksi.
 
@@ -53,44 +53,20 @@ Model-model tersebut dilatih menggunakan data interaksi buatan antara `published
 ## 📊 Data Understanding
 ---
 
-Dataset yang digunakan dalam proyek ini adalah **Books Dataset** yang tersedia secara publik melalui [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/books-dataset). Dataset ini mencakup informasi bibliografis dan metrik evaluasi terhadap berbagai judul buku, dan cocok digunakan dalam proyek sistem rekomendasi berbasis konten maupun kolaboratif. Dataset berjumlah 12 kolom, 6810 baris dan dataset kotor yang masih terdapat missing values pada kolom subtitle, authors, categories, thumbnail, description, description, published_year, average_rating, num_pages, ratings_count, dataset ini diambil dari platform
+Dataset yang digunakan dalam proyek ini adalah **Books Dataset** yang tersedia secara publik melalui [Kaggle](https://www.kaggle.com/datasets/programmer3/personalized-book-ratings-dataset). Dataset ini mencakup informasi bibliografis dan metrik evaluasi terhadap berbagai judul buku, dan cocok digunakan dalam proyek sistem rekomendasi berbasis konten maupun kolaboratif. Dataset berjumlah 6 kolom, 1034 baris dan dataset bersih tidak ada missing values, dataset ini diambil dari platform Kaggle.
 
 Dataset terdiri dari satu file utama:
 
-- `dataset_buku.csv`: berisi informasi deskriptif mengenai ribuan buku, seperti ISBN, judul, penulis, kategori, tahun terbit, jumlah halaman, rating rata-rata, dan jumlah rating.
+- `dataset_buku.csv`: berisi informasi deskriptif mengenai ribuan buku, seperti user_id, book_id, penulis, rating, penerbit, dan judul buku.
 
 ### 🔢 Fitur-fitur dalam `dataset_buku.csv`:
 
-- `isbn13`: ID unik buku versi 13 digit.
-- `isbn10`: ID unik buku versi 10 digit.
-- `title`: Judul utama buku.
-- `subtitle`: Subjudul (jika tersedia).
-- `authors`: Nama penulis.
-- `categories`: Kategori atau genre buku.
-- `thumbnail`: URL gambar sampul.
-- `description`: Deskripsi buku.
-- `published_year`: Tahun terbit buku.
-- `average_rating`: Rating rata-rata buku (skala 0–5).
-- `num_pages`: Jumlah halaman buku.
-- `ratings_count`: Jumlah rating yang diterima buku.
-
-### 🧹 Kondisi Data
-
-Dataset ini memiliki beberapa nilai yang hilang (*missing values*) pada kolom-kolom berikut:
-
-| Kolom            | Jumlah Missing Value |
-|------------------|----------------------|
-| subtitle         | 4.429                |
-| authors          | 72                   |
-| categories       | 99                   |
-| thumbnail        | 329                  |
-| description      | 262                  |
-| published_year   | 6                    |
-| average_rating   | 43                   |
-| num_pages        | 43                   |
-| ratings_count    | 43                   |
-
-> Kolom `isbn13`, `isbn10`, dan `title` tidak memiliki nilai yang hilang.
+- **user_id**: ID pengguna dalam format `Uxxxx`.
+- **book_id**: ID buku dalam format `Bxxxx`.
+- **rating**: Nilai rating dari pengguna, skala 1-5.
+- **author**: Nama penulis buku.
+- **publisher**: Nama penerbit buku.
+- **book_title**: Judul buku.
 
 ### 🧭 Distribusi Data
 
