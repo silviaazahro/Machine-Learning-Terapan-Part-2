@@ -27,7 +27,7 @@ Dalam proyek ini, dua model _collaborative filtering_ yang dikembangkan adalah:
 1. **RecommenderNet** — Model sederhana berbasis embedding dan _dot product_ antara fitur pengguna dan item.
 2. **NeuMF (Neural Matrix Factorization)** — Kombinasi antara pendekatan GMF (_Generalized Matrix Factorization_) dan MLP (_Multilayer Perceptron_) yang lebih kompleks.
 
-Model-model tersebut dilatih menggunakan data interaksi buatan antara `published_year` dan `num_pages` untuk mempelajari hubungan laten antar entitas, dan menghasilkan rekomendasi buku berdasarkan prediksi skor atau rating.
+Model-model tersebut dilatih menggunakan data interaksi buatan antara `user_id` dan `book_id` untuk mempelajari hubungan laten antar entitas, dan menghasilkan rekomendasi buku berdasarkan prediksi skor atau rating.
 
 ## 🧠 Business Understanding
 ---
@@ -46,7 +46,7 @@ Model-model tersebut dilatih menggunakan data interaksi buatan antara `published
 
 - Menggunakan pendekatan **matrix factorization** melalui embedding fitur pengguna dan item untuk mempelajari representasi laten (_latent representations_).
 - Mengimplementasikan dua pendekatan sistem rekomendasi:
-  1. **Dot product** antara embedding pengguna (`published_year`) dan item (`num_pages`) untuk memprediksi rating — mendekati baseline matrix factorization.
+  1. **Dot product** antara embedding pengguna (`user_id`) dan item (`book_id`) untuk memprediksi rating — mendekati baseline matrix factorization.
   2. **Neural Collaborative Filtering (NeuMF)** — model yang menggabungkan _Generalized Matrix Factorization (GMF)_ dan _Multi-Layer Perceptron (MLP)_ untuk meningkatkan performa prediksi.
 - Menggunakan **TensorFlow dan Keras** sebagai framework utama dalam membangun dan melatih model.
 
@@ -70,14 +70,16 @@ Dataset terdiri dari satu file utama:
 
 ### 🧭 Distribusi Data
 
-- `published_year` memiliki rentang dari **1853** hingga **2019**, mencakup lebih dari satu abad penerbitan buku.
-- `num_pages` berkisar dari puluhan hingga lebih dari seribu halaman, mencerminkan variasi panjang buku yang sangat besar.
-- `average_rating` menunjukkan kecenderungan distribusi skewed ke arah nilai tinggi, mirip dengan dataset rating pada sistem rekomendasi lainnya.
-- `ratings_count` sangat bervariasi; beberapa buku mendapatkan ribuan rating, sementara sebagian lainnya hanya beberapa.
+- `user_id` terdiri dari ID pengguna yang tampaknya disimulasikan (misalnya `U0058`, `U0014`, dll), dengan total variasi pengguna yang menunjukkan adanya data interaksi eksplisit antara pengguna dan buku.
+- `book_id` merupakan identifier unik untuk setiap buku, seperti `B0007`, `B0144`, dll, dan digunakan sebagai basis item dalam sistem rekomendasi.
+- `rating` berkisar dari **1** hingga **5**, menunjukkan preferensi pengguna terhadap suatu buku. Distribusi rating cenderung **condong ke arah nilai tinggi**, konsisten dengan tren umum dalam sistem rating lainnya.
+- `author` dan `publisher` memberikan informasi tambahan yang dapat dimanfaatkan dalam sistem rekomendasi berbasis **content-based filtering**.
+- `book_title` memberikan konteks naratif yang bisa diekstraksi menjadi fitur teks (misalnya melalui TF-IDF) untuk pendekatan berbasis konten.
 
 ### 📌 Catatan
 
-Karena tidak tersedia informasi `userId` eksplisit, pendekatan simulatif digunakan untuk membangun sistem rekomendasi, di mana `published_year` diasumsikan mewakili sekelompok pembaca dari generasi yang sama, dan digunakan sebagai pengganti `userId` dalam konteks model rekomendasi berbasis collaborative filtering.
+Dataset ini **sudah menyediakan `user_id` eksplisit**, sehingga sistem rekomendasi berbasis **collaborative filtering** dapat dibangun secara langsung tanpa perlu asumsi tambahan.  
+Namun, pendekatan **hybrid** juga dapat diterapkan dengan mengombinasikan informasi eksplisit dari interaksi pengguna (`user_id`, `rating`) dan konten buku (`author`, `publisher`, `book_title`).
 
 ### 📊 Visualisasi Distribusi Data Rating
 
