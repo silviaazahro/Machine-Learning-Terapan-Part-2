@@ -85,27 +85,33 @@ Namun, pendekatan **hybrid** juga dapat diterapkan dengan mengombinasikan inform
 
 Grafik batang di bawah ini menunjukkan frekuensi masing-masing nilai rating buku dari skala 0 hingga 5. Terlihat bahwa rating **4.0** merupakan yang paling sering muncul, diikuti oleh rating **3.0** dan **5.0**. Hal ini mengindikasikan bahwa sebagian besar pembaca memberikan penilaian yang cukup positif terhadap buku-buku yang mereka baca.
 
-![Distribusi Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/distribusi%20rating%20(2).png) 
+![Distribusi Rating](https://raw.githubusercontent.com/silviaazahro/Machine-Learning-Terapan-Part-2/main/distribusi%20rating%20(2).png)
 
 ### 🧱 Visualisasi Histogram Data Rating
 
 Histogram di bawah ini menggambarkan penyebaran nilai rating dalam bentuk batang berwarna biru muda. Pola distribusinya mirip dengan grafik distribusi sebelumnya, di mana rating tinggi (khususnya 4.0) mendominasi. Ini menunjukkan bahwa persepsi pembaca terhadap buku dalam dataset ini cenderung positif.
 
-![Histogram Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/histogram%20rating%20(2).png)
+![Histogram Rating](https://raw.githubusercontent.com/silviaazahro/Machine-Learning-Terapan-Part-2/main/histogram%20rating%20(2).png)
 
 ### 📦 Visualisasi Boxplot Data Rating
 
 Boxplot berikut menampilkan ringkasan statistik nilai rating buku, termasuk nilai minimum, maksimum, kuartil, dan median. Median rating berada di sekitar **3.8**, menunjukkan bahwa mayoritas rating berkisar pada nilai tinggi. Beberapa outlier dengan rating rendah juga terlihat, mencerminkan adanya buku yang dianggap kurang memuaskan oleh sebagian pembaca.
 
-![Boxplot Rating](https://github.com/silviaazahro/Machine-Learning-Terapan-Part-2/blob/main/boxplot%20rating%20(3).png)
+![Boxplot Rating](https://raw.githubusercontent.com/silviaazahro/Machine-Learning-Terapan-Part-2/main/boxplot%20rating%20(3).png)
 
-## Data Preparation 
+## Data Preparation
 ---
 Beberapa tahapan dalam persiapan data yang dilakukan meliputi:
-
-1. **Encoding**: Mengonversi variabel *user_id* dan *book_id* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.
-2. **Normalisasi**: Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.
-3. **Pembagian Dataset**: Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
+1. **Encoding**  
+   Mengonversi variabel *user_id* dan *book_id* menjadi indeks bilangan bulat agar dapat dimanfaatkan dalam layer embedding. Layer embedding membutuhkan input berupa indeks numerik yang nantinya dipetakan ke dalam vektor representasi laten.
+2. **Normalisasi**  
+   Melakukan normalisasi pada data *rating* ke dalam rentang 0 hingga 1 karena model menggunakan fungsi aktivasi sigmoid di output layer. Hal ini penting agar output model sesuai dengan skala target yang diinginkan.
+3. **Pemilihan Fitur**  
+   Variabel input (*x*) dibentuk dari fitur *user_index* dan *book_index*, sedangkan variabel target (*y*) berasal dari *rating_norm* yang telah dinormalisasi.
+4. **Pengacakan Data**  
+   Data diacak terlebih dahulu menggunakan `data.sample(frac=1, random_state=42)` untuk memastikan bahwa distribusi data pada set pelatihan dan validasi bersifat acak dan tidak berpola, yang membantu meningkatkan generalisasi model.
+5. **Pembagian Dataset**  
+   Data dipisah menjadi set pelatihan (*training set*) dan set validasi (*validation set*) untuk mengukur performa model secara objektif serta menghindari overfitting.
 
 Tahapan ini dilakukan agar data siap digunakan secara efektif dalam model deep learning.
 
